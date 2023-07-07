@@ -32,17 +32,24 @@ import { useEffect, useState } from "react";
 
 const AvailableMeals = () => {
   const [melas, setMelas] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [httpError, setHttpError] = useState(); // Error State
 
   useEffect(() => {
     // 여기에 aysnc 하면 안됨
     // http 요청 보내는 것은 비동기 task이다. async await을 사용하라
     const fetchMeals = async () => {
+      // async는 항상 promise를 반환
       // setIsLoading(true);
       const response = await fetch(
         // 중첩된 내부함수로 입력
-        "https://reactfood-726ac-default-rtdb.firebaseio.com/meals.json"
+        "https://reactfood-726ac-default-rtdb.firebaseio.com/meals"
       ); // .json은 firebase에 가져올 때 가져오기위한 약속
+
+      if (!response.ok) {
+        throw new Error("Something went wrong"); // 생성된 오류 객체의 메시지 프로퍼티에 해당 문자열이 저장
+      }
+
       const responseData = await response.json(); // promise 를 뱉기 때문에 await을 해줘야함.
 
       const loadedMeals = [];
@@ -57,7 +64,11 @@ const AvailableMeals = () => {
       setMelas(loadedMeals);
       setIsLoading(false);
     };
-    fetchMeals();
+
+    fetchMeals().catch((error) => {
+      setIsLoading(false);
+      setHttpError(error.message);
+    });
   }, []);
   // useEffect에는 promise를 반환하며 안된다.
   // async await을 사용하려면 위와 같이 함수를 만들어줘야함.
@@ -67,6 +78,14 @@ const AvailableMeals = () => {
     return (
       <section className={classes.MealsLoading}>
         <p>Loading...</p>
+      </section>
+    );
+  }
+
+  if (httpError) {
+    return (
+      <section className={classes.MealsError}>
+        <p>{httpError}</p>
       </section>
     );
   }
