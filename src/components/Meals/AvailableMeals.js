@@ -32,11 +32,13 @@ import { useEffect, useState } from "react";
 
 const AvailableMeals = () => {
   const [melas, setMelas] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // 여기에 aysnc 하면 안됨
     // http 요청 보내는 것은 비동기 task이다. async await을 사용하라
     const fetchMeals = async () => {
+      // setIsLoading(true);
       const response = await fetch(
         // 중첩된 내부함수로 입력
         "https://reactfood-726ac-default-rtdb.firebaseio.com/meals.json"
@@ -45,9 +47,6 @@ const AvailableMeals = () => {
 
       const loadedMeals = [];
       for (const key in responseData) {
-        console.log(responseData);
-        // console.log(responseData[key]);
-        // console.log(responseData[key]);
         loadedMeals.push({
           id: key,
           name: responseData[key].name,
@@ -55,13 +54,23 @@ const AvailableMeals = () => {
           price: responseData[key].price,
         });
       }
-      console.log("loadedMeals>>", loadedMeals);
       setMelas(loadedMeals);
+      setIsLoading(false);
     };
     fetchMeals();
   }, []);
   // useEffect에는 promise를 반환하며 안된다.
   // async await을 사용하려면 위와 같이 함수를 만들어줘야함.
+
+  if (isLoading) {
+    // 이게 true 면 아래 mealsList에 조차 도달안됨.
+    return (
+      <section className={classes.MealsLoading}>
+        <p>Loading...</p>
+      </section>
+    );
+  }
+
   const mealsList = melas.map((meal) => (
     <MealItem
       key={meal.id}
