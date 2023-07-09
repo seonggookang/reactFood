@@ -43,17 +43,18 @@ const AvailableMeals = () => {
       // setIsLoading(true);
       const response = await fetch(
         // 중첩된 내부함수로 입력
-        "https://reactfood-726ac-default-rtdb.firebaseio.com/meals"
+        "https://reactfood-726ac-default-rtdb.firebaseio.com/meals.json"
       ); // .json은 firebase에 가져올 때 가져오기위한 약속
 
       if (!response.ok) {
         throw new Error("Something went wrong"); // 생성된 오류 객체의 메시지 프로퍼티에 해당 문자열이 저장
-      }
+      } // 이 다음 줄은 실행되지 않음
 
       const responseData = await response.json(); // promise 를 뱉기 때문에 await을 해줘야함.
 
       const loadedMeals = [];
       for (const key in responseData) {
+        // 이 부분 문법 재밌네
         loadedMeals.push({
           id: key,
           name: responseData[key].name,
@@ -65,10 +66,23 @@ const AvailableMeals = () => {
       setIsLoading(false);
     };
 
+    // 이것이 promise 내부의 오류를 다룰 수 있는 promise만이 가능한 기존 방법
     fetchMeals().catch((error) => {
       setIsLoading(false);
       setHttpError(error.message);
     });
+
+    // fetchMeals는 async 함수라는 사실을 명심!
+    // 그래서 이건 항상 promise를 반환함.
+    // promise대신 오류를 가져오는 경우 그 오류로 인해 해당 promise가 거부됨
+    // 따라서 try/catch를 사용해서 그걸 래핑할 수 없음
+
+    // try {
+    //   fetchMeals();
+    // } catch (error) {
+    //   setIsLoading(false);
+    //   setHttpError(error.message); // error라는 객체에는 디폴트로 message 프로퍼티를 갖음
+    // }
   }, []);
   // useEffect에는 promise를 반환하며 안된다.
   // async await을 사용하려면 위와 같이 함수를 만들어줘야함.
