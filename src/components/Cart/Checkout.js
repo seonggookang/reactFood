@@ -50,6 +50,12 @@ const Checkout = (props) => {
       return; // 문제 발생 시 코드 실행을 지속하지 않기 위해 return
     }
 
+    props.onConfirm({
+      name: enteredName,
+      street: enteredStreet,
+      city: enteredCity,
+      postalCode: enteredPostalCode,
+    });
     // Submit cart data ( 위에서 문제 발생 시 이 코드에 도달 X)
   };
 
